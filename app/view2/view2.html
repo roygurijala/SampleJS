@@ -1,0 +1,130 @@
+<style>
+    .typeahead-demo .custom-popup-wrapper {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        z-index: 1000;
+        display: none;
+        background-color: #f9f9f9;
+    }
+
+    .typeahead-demo .custom-popup-wrapper > .message {
+        padding: 10px 20px;
+        border-bottom: 1px solid #ddd;
+        color: #868686;
+    }
+
+    .typeahead-demo .custom-popup-wrapper > .dropdown-menu {
+        position: static;
+        float: none;
+        display: block;
+        min-width: 160px;
+        background-color: transparent;
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
+    }
+
+    #scrollable-dropdown-menu .dropdown-menu {
+        max-height: 150px;
+        overflow-y: auto;
+    }
+</style>
+
+<script type="text/ng-template" id="customPopupTemplate.html">
+    <div class="custom-popup-wrapper"
+         ng-style="{top: position().top+'px', left: position().left+'px'}"
+         style="display: block;"
+         ng-show="isOpen() && !moveInProgress"
+         aria-hidden="{{!isOpen()}}">
+        <p class="message">select location from drop down.</p>
+
+        <ul class="dropdown-menu" role="listbox">
+            <li class="uib-typeahead-match" ng-repeat="match in matches track by $index" ng-class="{active: isActive($index) }"
+                ng-mouseenter="selectActive($index)" ng-click="selectMatch($index)" role="option" id="{{::match.id}}">
+                <div uib-typeahead-match index="$index" match="match" query="query" template-url="templateUrl"></div>
+            </li>
+        </ul>
+    </div>
+</script>
+<div class='container-fluid typeahead-demo'>
+<table st-table="responseData" class="table">
+  <tr ng-repeat="row in tablerows track by $index">
+     <td>
+         <button type="button" ng-click="delete($index)" class="btn btn-sm btn-success">
+             <i class="glyphicon glyphicon-minus">
+             </i> Delete
+         </button>
+     </td>
+    <td>
+      <select name="users" ng-options="user as user.name for user in arrlist" ng-model="row.box1">
+      </select>
+    </td>
+    <td>
+      <select name="users2" ng-options="user2 as user2.name for user2 in arrlist2 | filter:filterText($index)" ng-model="row.criteriaList">
+      </select>
+    </td>
+    <td>
+        <div id="scrollable-dropdown-menu" ng-if="row.box1.type != 'date'">
+              <input type="text"
+                     ng-model="row.referenceData.name"
+                     placeholder="Countries typeahead"
+                     uib-typeahead="referenceObject as referenceTypeAheadLabel(referenceObject, row.box1.referenceType) for referenceObject in getSelectedReferenceData($viewValue, row.box1.referenceType)"
+                     typeahead-loading="loadingLocations"
+                     typeahead-popup-template-url="customPopupTemplate.html"
+                     typeahead-min-length = 0
+                     typeahead-no-results="noResults" class="form-control">
+        </div>
+        <div ng-if="row.box1.type === 'date'">
+            <p class="input-group">
+                <input type="text" class="form-control" uib-datepicker-popup="{{format}}" ng-model="row.referenceData.startDate" is-open="popup1.opened" datepicker-options="dateOptions" ng-required="true" close-text="Close" alt-input-formats="altInputFormats" />
+                <span class="input-group-btn">
+                <button type="button" class="btn btn-default" ng-click="open1()"><i class="glyphicon glyphicon-calendar"></i></button>
+              </span>
+            </p>
+            <div ng-if="row.criteriaList.name === 'in between'">
+                <p class="input-group">
+                    <input type="text" class="form-control" uib-datepicker-popup="{{format}}" ng-model="row.referenceData.endDate" is-open="popup2.opened" datepicker-options="dateOptions" ng-required="true" close-text="Close" alt-input-formats="altInputFormats" />
+                    <span class="input-group-btn">
+                <button type="button" class="btn btn-default" ng-click="open2()"><i class="glyphicon glyphicon-calendar"></i></button>
+              </span>
+                </p>
+            </div>
+        </div>
+    </td>
+  </tr>
+</table>
+<!--<div><a href="javascript:;" ng-click="addRow()">add</a></div>-->
+    <button type="button" ng-click="addRow()" class="btn btn-sm btn-success">
+        <i class="glyphicon glyphicon-plus">
+        </i> Add
+    </button>
+    <button type="button" ng-click="onSubmit()" class="btn btn-sm btn-success">
+        <i class="glyphicon">
+        </i> Submit
+    </button>
+<!--    <input type="button" value="Submit" ng-click="onSubmit()" />-->
+<!--{{tablerows}}-->
+<br /><br />
+<br /><br />
+    <table st-table="responseData" class="table table-striped">
+        <thead>
+        <tr>
+            <th>Order ID</th>
+            <th>Order Name</th>
+            <th>Product Name</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="data in responseData">
+            <td>{{data.orderId}}</td>
+            <td>{{data.orderName}}</td>
+            <td>{{data.productName}}</td>
+            <td>{{data.startDate | date : "MM/dd/y"}}</td>
+            <td>{{data.endDate | date : "MM/dd/y"}}</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
